@@ -86,6 +86,15 @@ app.get('/movies/read/by-title', (req, res) => {
 
 })
 
+app.get('/movies/read/id/:ID', (req, res) => {
+  const ID = parseInt(req.params.ID);
+  if (ID<=movies.length && ID >0){
+    res.send({status:200, data: movies[ID-1]})
+  }else{
+    res.send({status:404, error:true, message:'the movie <ID> does not exist'})
+  }
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
