@@ -1,6 +1,10 @@
 
 const express = require('express')
 const app = express()
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 const port = 3000
 const movies = [
     { title: 'Jaws', year: 1975, rating: 8 },
@@ -44,10 +48,6 @@ app.get('/search', (req, res) => {
     else res.send({ status: 200, message: "ok", data: search })
 })
 
-// app.get('/movies/create', (req, res) => {
-//     res.send({})
-// })
-
 app.get('/movies/read', (req, res) => {
     res.send({ status: 200, data: movies })
 })
@@ -85,28 +85,27 @@ app.get('/movies/read/id/:ID', (req, res) => {
     }
 })
 
-app.get("/movies/create", (req,res) => {
+app.post("/movies/create", (req,res) => {
 
     const movie = {
-      title : req.query.title,
-      year : req.query.year,
-      rating : req.query.rating
+      title : req.body.title,
+      year : req.body.year,
+      rating : req.body.rating
     };
     if(movie.rating == undefined) {
       movie.rating = 4;
     }
     if ((movie.title) == 'undefined' || (movie.year == 'undefined') ||  (isNaN(movie.year)) || (movie.year.toString().length !== 4)){
       res.json({status:403, error:true, message:'you cannot create a movie without providing a title and a year'});
-      console.log(res.json)
     }
     else{
       movies.push(movie);
       res.send(movie);
       res.json({status: 200, message: 'ok' , data: movies})
     }
-  });
+});
 
-  app.get("/movies/delete/:id", (req,res) => {
+app.delete("/movies/delete/:id", (req,res) => {
      const id = parseInt(req.params.id);
      
      if (id>movies.length || id<=0){
@@ -117,29 +116,25 @@ app.get("/movies/create", (req,res) => {
      }
   });
 
-  app.get("/movies/update/:Id", (req, res) => {
+app.put("/movies/update/:Id", (req, res) => {
     let id=req.params.Id;
-    const myTitle=req.query.title;
-    const myRating=req.query.rating;
-    const myYear=req.query.year;
+    const myTitle=req.body.title;
+    const myRating=req.body.rating;
+    const myYear=req.body.year;
 
     if ( id > 0 && id < movies.length){
-        if(myTitle != movies[id].title && myTitle != ""){
+        if(myYear != movies[id].year && myYear.length === 4 && myYear !== "" || myTitle != movies[id].title && myTitle != "" || myRating!=movies[id].rating && myRating !=""){
             movies[id].title=myTitle;
-        }
-        else if(myYear != movies[id].year && myYear.length === 4){ 
-             movies[id].year=myYear;
+            movies[id].rating=myRating;
+            movies[id].year=myYear;
         }
         else if( myYear.length !== 4){ 
             res.json({error:true, message: "cannot update"})
         }
-        else if(myRating!=movies[id].rating){
-             movies[id].rating=myRating;
-        }
     res.send({status:200, data: movies})
     }
     else{
-        res.send({error:true, message:`movie of this ${id} does not exist`})
+        res.send({error:true, message:`movie of this id ${id} does not exist`})
     }
 })
 
