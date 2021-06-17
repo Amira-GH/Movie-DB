@@ -52,14 +52,6 @@ app.get('/movies/read', (req, res) => {
     res.send({ status: 200, data: movies })
 })
 
-app.get('/movies/update', (req, res) => {
-    res.send({})
-})
-
-app.get('/movies/delete', (req, res) => {
-    res.send({})
-})
-
 app.get('/movies/read/by-date', (req, res) => {
     res.send({ status: 200, data: ORDERED_BY_DATE })
 })
@@ -89,7 +81,7 @@ app.get('/movies/read/id/:ID', (req, res) => {
     if (ID <= movies.length && ID > 0) {
         res.send({ status: 200, data: movies[ID - 1] })
     } else {
-        res.send({ status: 404, error: true, message: 'the movie <ID> does not exist' })
+        res.send({ status: 404, error: true, message: `the movie ${ID} does not exist` })
     }
 })
 
@@ -124,6 +116,33 @@ app.get("/movies/create", (req,res) => {
          res.send(movies);
      }
   });
+
+  app.get("/movies/update/:Id", (req, res) => {
+    let id=req.params.Id;
+    const myTitle=req.query.title;
+    const myRating=req.query.rating;
+    const myYear=req.query.year;
+
+    if ( id > 0 && id < movies.length){
+        if(myTitle != movies[id].title && myTitle != ""){
+            movies[id].title=myTitle;
+        }
+        else if(myYear != movies[id].year && myYear.length === 4){ 
+             movies[id].year=myYear;
+        }
+        else if( myYear.length !== 4){ 
+            res.json({error:true, message: "cannot update"})
+        }
+        else if(myRating!=movies[id].rating){
+             movies[id].rating=myRating;
+        }
+    res.send({status:200, data: movies})
+    }
+    else{
+        res.send({error:true, message:`movie of this ${id} does not exist`})
+    }
+})
+
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
